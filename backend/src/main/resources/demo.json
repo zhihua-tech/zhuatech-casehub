@@ -1,0 +1,80 @@
+[
+  {
+    "op": "create",
+    "as": "case",
+    "module": "cases",
+    "data": {
+      "subject": "供应商资料异常调查",
+      "category": "COMPLIANCE",
+      "reporter": "合规专员",
+      "severity": "HIGH"
+    }
+  },
+  {
+    "op": "action",
+    "target": "case",
+    "action": "triage"
+  },
+  {
+    "op": "create",
+    "as": "task",
+    "module": "tasks",
+    "data": {
+      "case": "$case.id",
+      "title": "核对供应商资料",
+      "owner": "调查员甲",
+      "dueDate": "$today+7"
+    }
+  },
+  {
+    "op": "create",
+    "as": "evidence",
+    "module": "evidence",
+    "data": {
+      "case": "$case.id",
+      "description": "供应商提交的原始资料",
+      "classification": "CONFIDENTIAL",
+      "collectedAt": "$today"
+    }
+  },
+  {
+    "op": "action",
+    "target": "task",
+    "action": "complete",
+    "data": {
+      "result": "资料真实性已核对"
+    }
+  },
+  {
+    "op": "attachment",
+    "target": "evidence"
+  },
+  {
+    "op": "action",
+    "target": "evidence",
+    "action": "seal",
+    "role": "reviewer"
+  },
+  {
+    "op": "action",
+    "target": "case",
+    "action": "submit",
+    "data": {
+      "resolution": "资料异常已纠正，供应商账号继续保留"
+    }
+  },
+  {
+    "op": "action",
+    "target": "case",
+    "action": "approve",
+    "role": "reviewer"
+  },
+  {
+    "op": "find",
+    "as": "closure",
+    "module": "closures",
+    "where": {
+      "data.case": "$case.id"
+    }
+  }
+]

@@ -1,0 +1,13 @@
+# 上海如静知华信息科技有限公司 https://www.zhuatech.cn/
+.DS_Store
+.env
+.env.local
+.env.production
+node_modules/
+dist/
+target/
+*.log
+*.zip
+coverage/
+output/
+.playwright-cli/
