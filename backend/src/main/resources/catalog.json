@@ -1,0 +1,339 @@
+{
+  "slug": "casehub",
+  "name": "知华企业案件协作",
+  "subtitle": "案件受理、任务调查、证据管理与结案复核",
+  "accent": "#8a6858",
+  "modules": [
+    {
+      "key": "cases",
+      "label": "案件台账",
+      "description": "受理、分派、调查、复核和关闭",
+      "initial": "INTAKE",
+      "editable": true,
+      "creatable": true,
+      "fields": [
+        {
+          "key": "subject",
+          "label": "案件主题",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "category",
+          "label": "案件类别",
+          "type": "select",
+          "required": true,
+          "ref": null,
+          "options": [
+            "COMPLAINT",
+            "INCIDENT",
+            "COMPLIANCE"
+          ],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "reporter",
+          "label": "报告人",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "severity",
+          "label": "严重级别",
+          "type": "select",
+          "required": true,
+          "ref": null,
+          "options": [
+            "LOW",
+            "MEDIUM",
+            "HIGH"
+          ],
+          "min": null,
+          "max": null
+        }
+      ],
+      "actions": [
+        {
+          "key": "triage",
+          "label": "受理调查",
+          "from": [
+            "INTAKE"
+          ],
+          "to": "INVESTIGATING",
+          "role": "OPERATOR",
+          "separate": false,
+          "fields": []
+        },
+        {
+          "key": "submit",
+          "label": "提交结案复核",
+          "from": [
+            "INVESTIGATING"
+          ],
+          "to": "REVIEW",
+          "role": "OPERATOR",
+          "separate": false,
+          "fields": [
+            {
+              "key": "resolution",
+              "label": "处理结论",
+              "type": "text",
+              "required": true,
+              "ref": null,
+              "options": [],
+              "min": null,
+              "max": null
+            }
+          ]
+        },
+        {
+          "key": "approve",
+          "label": "批准结案",
+          "from": [
+            "REVIEW"
+          ],
+          "to": "CLOSED",
+          "role": "REVIEWER",
+          "separate": true,
+          "fields": []
+        },
+        {
+          "key": "return",
+          "label": "退回调查",
+          "from": [
+            "REVIEW"
+          ],
+          "to": "INVESTIGATING",
+          "role": "REVIEWER",
+          "separate": true,
+          "fields": [
+            {
+              "key": "reason",
+              "label": "退回原因",
+              "type": "text",
+              "required": true,
+              "ref": null,
+              "options": [],
+              "min": null,
+              "max": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "tasks",
+      "label": "调查任务",
+      "description": "负责人、截止日与完成情况",
+      "initial": "OPEN",
+      "editable": true,
+      "creatable": true,
+      "fields": [
+        {
+          "key": "case",
+          "label": "所属案件",
+          "type": "ref",
+          "required": true,
+          "ref": "cases",
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "title",
+          "label": "任务名称",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "owner",
+          "label": "负责人",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "dueDate",
+          "label": "截止日期",
+          "type": "date",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        }
+      ],
+      "actions": [
+        {
+          "key": "start",
+          "label": "开始任务",
+          "from": [
+            "OPEN"
+          ],
+          "to": "IN_PROGRESS",
+          "role": "OPERATOR",
+          "separate": false,
+          "fields": []
+        },
+        {
+          "key": "complete",
+          "label": "完成任务",
+          "from": [
+            "OPEN",
+            "IN_PROGRESS"
+          ],
+          "to": "DONE",
+          "role": "OPERATOR",
+          "separate": false,
+          "fields": [
+            {
+              "key": "result",
+              "label": "完成结果",
+              "type": "text",
+              "required": true,
+              "ref": null,
+              "options": [],
+              "min": null,
+              "max": null
+            }
+          ]
+        },
+        {
+          "key": "reopen",
+          "label": "重开任务",
+          "from": [
+            "DONE"
+          ],
+          "to": "OPEN",
+          "role": "REVIEWER",
+          "separate": true,
+          "fields": [
+            {
+              "key": "reason",
+              "label": "重开原因",
+              "type": "text",
+              "required": true,
+              "ref": null,
+              "options": [],
+              "min": null,
+              "max": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "evidence",
+      "label": "证据登记",
+      "description": "上传凭证、核验并封存摘要",
+      "initial": "REGISTERED",
+      "editable": false,
+      "creatable": true,
+      "fields": [
+        {
+          "key": "case",
+          "label": "所属案件",
+          "type": "ref",
+          "required": true,
+          "ref": "cases",
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "description",
+          "label": "证据说明",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "classification",
+          "label": "密级",
+          "type": "select",
+          "required": true,
+          "ref": null,
+          "options": [
+            "INTERNAL",
+            "CONFIDENTIAL"
+          ],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "collectedAt",
+          "label": "取得日期",
+          "type": "date",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        }
+      ],
+      "actions": [
+        {
+          "key": "seal",
+          "label": "核验封存",
+          "from": [
+            "REGISTERED"
+          ],
+          "to": "SEALED",
+          "role": "REVIEWER",
+          "separate": true,
+          "fields": []
+        }
+      ]
+    },
+    {
+      "key": "closures",
+      "label": "结案档案",
+      "description": "结论与证据摘要的不可修改归档",
+      "initial": "ARCHIVED",
+      "editable": false,
+      "creatable": false,
+      "fields": [
+        {
+          "key": "case",
+          "label": "案件",
+          "type": "ref",
+          "required": true,
+          "ref": "cases",
+          "options": [],
+          "min": null,
+          "max": null
+        },
+        {
+          "key": "resolution",
+          "label": "处理结论",
+          "type": "text",
+          "required": true,
+          "ref": null,
+          "options": [],
+          "min": null,
+          "max": null
+        }
+      ],
+      "actions": []
+    }
+  ]
+}
