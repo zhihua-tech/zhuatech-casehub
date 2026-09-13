@@ -65,12 +65,23 @@
     "op": "attachment",
     "target": "evidence"
   },
+  {"op":"action","target":"evidence","action":"seal","role":"reviewer","error":409},
+  {"op":"action","target":"evidence","action":"transfer","role":"reviewer","data":{"transferRef":"CUST-001","toHolder":"reviewer","purpose":"送交封存"},"error":409},
+  {"op":"action","target":"evidence","action":"transfer","data":{"transferRef":"CUST-001","toHolder":"unknown-user","purpose":"送交封存"},"error":409},
+  {"op":"action","target":"evidence","action":"transfer","data":{"transferRef":"CUST-001","toHolder":"viewer","purpose":"送交封存"},"error":409},
+  {"op":"action","target":"evidence","action":"transfer","data":{"transferRef":"CUST-001","toHolder":"reviewer","purpose":"送交独立审核人员封存"}},
+  {"op":"check","target":"evidence","expect":{"state":"REGISTERED","data.currentHolder":"reviewer","data.transferCount":1}},
+  {"op":"attachment","target":"evidence","role":"operator","error":409},
   {
     "op": "action",
     "target": "evidence",
     "action": "seal",
     "role": "reviewer"
   },
+  {"op":"action","target":"evidence","action":"transfer","role":"reviewer","data":{"transferRef":"CUST-001","toHolder":"admin","purpose":"移交档案"},"error":409},
+  {"op":"action","target":"evidence","action":"transfer","role":"reviewer","data":{"transferRef":"CUST-002","toHolder":"admin","purpose":"移交档案"}},
+  {"op":"check","target":"evidence","expect":{"state":"SEALED","data.currentHolder":"admin","data.transferCount":2}},
+  {"op":"count","module":"custody","count":2},
   {
     "op": "attachment",
     "target": "evidence",

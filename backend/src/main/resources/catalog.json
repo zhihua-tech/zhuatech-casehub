@@ -301,6 +301,19 @@
           "role": "REVIEWER",
           "separate": true,
           "fields": []
+        },
+        {
+          "key": "transfer",
+          "label": "登记证据交接",
+          "from": ["REGISTERED", "SEALED"],
+          "to": "REGISTERED",
+          "role": "OPERATOR",
+          "separate": false,
+          "fields": [
+            {"key":"transferRef","label":"交接凭证号","type":"text","required":true,"ref":null,"options":[],"min":null,"max":null},
+            {"key":"toHolder","label":"接收人账号","type":"text","required":true,"ref":null,"options":[],"min":null,"max":null},
+            {"key":"purpose","label":"交接用途","type":"text","required":true,"ref":null,"options":[],"min":null,"max":null}
+          ]
         }
       ]
     },
@@ -332,6 +345,21 @@
           "min": null,
           "max": null
         }
+      ],
+      "actions": []
+    },
+    {
+      "key": "custody",
+      "label": "证据交接链",
+      "description": "每次保管人变更的凭证、用途与经办时间",
+      "initial": "POSTED",
+      "editable": false,
+      "creatable": false,
+      "fields": [
+        {"key":"evidence","label":"证据","type":"ref","required":true,"ref":"evidence","options":[],"min":null,"max":null},
+        {"key":"transferRef","label":"交接凭证号","type":"text","required":true,"ref":null,"options":[],"min":null,"max":null},
+        {"key":"fromHolder","label":"移交人","type":"text","required":true,"ref":null,"options":[],"min":null,"max":null},
+        {"key":"toHolder","label":"接收人","type":"text","required":true,"ref":null,"options":[],"min":null,"max":null}
       ],
       "actions": []
     }
