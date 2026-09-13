@@ -44,7 +44,10 @@ public class Api {
  @GetMapping("/attachments/{record}") Object attachments(@RequestHeader(value="Authorization",required=false) String h,@PathVariable String record){User u=user(h);Row target=e.get(u,record);checkFileAccess(u,target);return e.jdbc().queryForList("SELECT id,filename,digest,size_bytes,created_at FROM attachment WHERE tenant=? AND record_id=? ORDER BY created_at DESC",u.tenant(),record);}
  @PostMapping("/attachments/{record}") @Transactional Object upload(@RequestHeader(value="Authorization",required=false) String h,@PathVariable String record,@RequestParam MultipartFile file)throws Exception{
   User u=user(h);Auth.role(u,"OPERATOR");e.lock(u);Row target=e.get(u,record);
-  if(target.module().equals("evidence"))require(target.state().equals("REGISTERED")&&e.ref(u,target.data(),"case","cases").state().equals("INVESTIGATING"),"证据已封存或案件已进入结案流程，不可追加附件");
+  if(target.module().equals("evidence")){
+   require(target.state().equals("REGISTERED")&&e.ref(u,target.data(),"case","cases").state().equals("INVESTIGATING"),"证据已封存或案件已进入结案流程，不可追加附件");
+   require(u.username().equals(Domain.holder(e,u,target,target.data())),"仅当前证据保管人可追加附件");
+  }
   if(target.module().equals("cases"))require(!target.state().equals("CLOSED"),"案件已结案，不可追加附件");
   if(file.isEmpty()||file.getSize()>2*1024*1024)throw new Failure(400,"附件须为 1 字节至 2 MB");
   String name=Objects.toString(file.getOriginalFilename(),"attachment").replaceAll("[\\\\/\\r\\n\\x00-]","_");if(name.length()>180)throw new Failure(400,"文件名过长");
