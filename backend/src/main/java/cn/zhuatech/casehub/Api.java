@@ -28,6 +28,7 @@ public class Api {
  @GetMapping("/dashboard") Object dashboard(@RequestHeader(value="Authorization",required=false) String h){return e.dashboard(user(h));}
  @GetMapping("/records") Page records(@RequestHeader(value="Authorization",required=false) String h,@RequestParam String module,@RequestParam(defaultValue="") String q,@RequestParam(defaultValue="") String state,@RequestParam(defaultValue="1") int page,@RequestParam(defaultValue="20") int size){return e.page(user(h),module,q,state,page,size);}
  @GetMapping("/records/{id}") Row record(@RequestHeader(value="Authorization",required=false) String h,@PathVariable String id){return e.get(user(h),id);}
+ @GetMapping("/evidence/{id}/integrity") Object integrity(@RequestHeader(value="Authorization",required=false) String h,@PathVariable String id){User u=user(h);Row row=e.get(u,id);checkFileAccess(u,row);return e.integrity(u,row);}
  @PostMapping("/records/{module}") Object create(@RequestHeader(value="Authorization",required=false) String h,@RequestHeader(value="Idempotency-Key",required=false) String key,@PathVariable String module,@RequestBody Command c){
   if(c.code()==null)throw new Failure(400,"缺少编号");return e.create(user(h),module,c.code(),data(c),key);
  }
@@ -39,7 +40,8 @@ public class Api {
  @PostMapping("/admin/users") @Transactional Object addUser(@RequestHeader(value="Authorization",required=false) String h,@RequestBody Map<String,String> i){User u=user(h);e.lock(u);auth.createUser(u,i);e.audit(u,"USERS","USER_CREATE",Map.of(),Map.of("username",i.get("username"),"role",i.get("role")),"新建账号");return Map.of("ok",true);}
  @PatchMapping("/admin/users/{id}") @Transactional Object changeUser(@RequestHeader(value="Authorization",required=false) String h,@PathVariable String id,@RequestBody Map<String,String> i){User u=user(h);e.lock(u);auth.changeUser(u,id,i);e.audit(u,"USERS","USER_CHANGE",Map.of(),Map.of("id",id,"role",i.getOrDefault("role",""),"active",i.getOrDefault("active","")),"调整权限或密码；旧会话已撤销");return Map.of("ok",true);}
  @GetMapping("/admin/audit") Object audit(@RequestHeader(value="Authorization",required=false) String h){User u=user(h);Auth.role(u,"ADMIN");return e.jdbc().queryForList("SELECT record_id,actor,action,remark,created_at FROM audit_event WHERE tenant=? ORDER BY sequence_no DESC LIMIT 200",u.tenant());}
- @GetMapping("/attachments/{record}") Object attachments(@RequestHeader(value="Authorization",required=false) String h,@PathVariable String record){User u=user(h);e.get(u,record);return e.jdbc().queryForList("SELECT id,filename,digest,size_bytes,created_at FROM attachment WHERE tenant=? AND record_id=? ORDER BY created_at DESC",u.tenant(),record);}
+ void checkFileAccess(User u,Row row){if(row.module().equals("evidence")&&"CONFIDENTIAL".equals(Objects.toString(row.data().get("classification"),""))&&u.role().equals("VIEWER"))throw new Failure(403,"只读账号无权查看涉密证据附件");}
+ @GetMapping("/attachments/{record}") Object attachments(@RequestHeader(value="Authorization",required=false) String h,@PathVariable String record){User u=user(h);Row target=e.get(u,record);checkFileAccess(u,target);return e.jdbc().queryForList("SELECT id,filename,digest,size_bytes,created_at FROM attachment WHERE tenant=? AND record_id=? ORDER BY created_at DESC",u.tenant(),record);}
  @PostMapping("/attachments/{record}") @Transactional Object upload(@RequestHeader(value="Authorization",required=false) String h,@PathVariable String record,@RequestParam MultipartFile file)throws Exception{
   User u=user(h);Auth.role(u,"OPERATOR");e.lock(u);Row target=e.get(u,record);
   if(target.module().equals("evidence"))require(target.state().equals("REGISTERED")&&e.ref(u,target.data(),"case","cases").state().equals("INVESTIGATING"),"证据已封存或案件已进入结案流程，不可追加附件");
@@ -53,6 +55,7 @@ public class Api {
  }
  @GetMapping("/attachments/download/{id}") ResponseEntity<byte[]> download(@RequestHeader(value="Authorization",required=false) String h,@PathVariable String id){
   User u=user(h);var rows=e.jdbc().queryForList("SELECT * FROM attachment WHERE tenant=? AND id=?",u.tenant(),id);if(rows.isEmpty())throw new Failure(404,"附件不存在");var r=rows.getFirst();
+  Row target=e.get(u,r.get("record_id").toString());checkFileAccess(u,target);if(target.module().equals("evidence")&&target.state().equals("SEALED"))require(Boolean.TRUE.equals(e.integrity(u,target).get("verified")),"证据完整性校验失败，不得下载");
   return ResponseEntity.ok().contentType(MediaType.APPLICATION_OCTET_STREAM).header("X-Content-Type-Options","nosniff").header("Content-Disposition",ContentDisposition.attachment().filename(r.get("filename").toString(),StandardCharsets.UTF_8).build().toString()).body((byte[])r.get("bytes"));
  }
 }

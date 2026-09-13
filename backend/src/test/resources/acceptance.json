@@ -76,6 +76,13 @@
     "target": "evidence",
     "error": 409
   },
+  {"op":"integrity","target":"evidence","verified":true},
+  {"op":"file-access","target":"evidence"},
+  {"op":"tamper","target":"evidence"},
+  {"op":"integrity","target":"evidence","verified":false},
+  {"op":"action","target":"case","action":"submit","data":{"resolution":"资料异常已纠正，供应商账号继续保留"},"error":409},
+  {"op":"restore","target":"evidence"},
+  {"op":"integrity","target":"evidence","verified":true},
   {
     "op": "action",
     "target": "case",
@@ -84,6 +91,9 @@
       "resolution": "资料异常已纠正，供应商账号继续保留"
     }
   },
+  {"op":"tamper","target":"evidence"},
+  {"op":"action","target":"case","action":"approve","role":"reviewer","error":409},
+  {"op":"restore","target":"evidence"},
   {
     "op": "action",
     "target": "case",

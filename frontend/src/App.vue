@@ -32,7 +32,7 @@ async function refresh(){
 }
 async function navigate(key){if(busy.value)return;section.value=key;page.value=1;query.value='';state.value='';selected.value=null;await guarded(refresh);}
 async function switchMode(next){if(busy.value)return;mode.value=next;window.history.replaceState({},'',next==='admin'?'/admin':'/work');await navigate(next==='admin'?'users':'dashboard');}
-async function openDetail(row){await guarded(async()=>{selected.value=await request('/records/'+row.id);history.value=await request('/records/'+row.id+'/history');attachments.value=await request('/attachments/'+row.id);});}
+async function openDetail(row){await guarded(async()=>{selected.value=await request('/records/'+row.id);history.value=await request('/records/'+row.id+'/history');const restricted=selected.value.module==='evidence'&&selected.value.data.classification==='CONFIDENTIAL'&&user.value.role==='VIEWER';attachments.value=restricted?[]:await request('/attachments/'+row.id);if(restricted)message('涉密证据附件仅限业务人员与审核人员查看');});}
 async function loadOptions(field,q=''){
  const r=await request('/records?'+new URLSearchParams({module:field.ref,q,size:'100'}));options.value[field.key]=r.items;
 }

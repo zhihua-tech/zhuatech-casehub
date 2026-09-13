@@ -19,7 +19,7 @@ import static cn.zhuatech.casehub.Model.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EnterpriseTests {
  @LocalServerPort int port;@Autowired ObjectMapper json;@Autowired Engine e;@Autowired Auth auth;@Autowired JdbcTemplate db;
- final HttpClient client=HttpClient.newHttpClient();final Map<String,String> tokens=new HashMap<>();final Map<String,String> ids=new LinkedHashMap<>();List<Map<String,Object>> steps;
+ final HttpClient client=HttpClient.newHttpClient();final Map<String,String> tokens=new HashMap<>();final Map<String,String> ids=new LinkedHashMap<>();final Map<String,byte[]> originalFiles=new HashMap<>();List<Map<String,Object>> steps;
  record Result(int status,Map<String,Object> body){}
  @SuppressWarnings("unchecked") Result call(String method,String path,Object body,String role,String key)throws Exception{
   var b=HttpRequest.newBuilder(URI.create("http://localhost:"+port+"/api"+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json");
@@ -69,6 +69,21 @@ class EnterpriseTests {
   }
   if(op.equals("metric")){
    var metrics=(Map<String,Object>)call("GET","/dashboard",null,role).body().get("metrics");((Map<String,Object>)step.get("expect")).forEach((k,v)->compare(v,metrics.get(k),k));return;
+  }
+  if(op.equals("integrity")){
+   long audit=db.queryForObject("SELECT COUNT(*) FROM audit_event",Long.class);
+   Result result=call("GET","/evidence/"+ids.get(step.get("target").toString())+"/integrity",null,role);assertEquals(200,result.status(),result.body().toString());
+   assertEquals(step.get("verified"),result.body().get("verified"));assertEquals(audit,db.queryForObject("SELECT COUNT(*) FROM audit_event",Long.class));return;
+  }
+  if(op.equals("file-access")){
+   String id=ids.get(step.get("target").toString());String file=db.queryForObject("SELECT id FROM attachment WHERE record_id=?",String.class,id);
+   assertEquals(403,call("GET","/attachments/"+id,null,"viewer").status());assertEquals(403,call("GET","/attachments/download/"+file,null,"viewer").status());
+   assertEquals(403,call("GET","/evidence/"+id+"/integrity",null,"viewer").status());assertEquals(200,call("GET","/attachments/"+id,null,"reviewer").status());return;
+  }
+  if(op.equals("tamper")||op.equals("restore")){
+   String id=ids.get(step.get("target").toString());String file=db.queryForObject("SELECT id FROM attachment WHERE record_id=?",String.class,id);
+   if(op.equals("tamper")){originalFiles.put(file,db.queryForObject("SELECT bytes FROM attachment WHERE id=?",(rs,n)->rs.getBytes(1),file));db.update("UPDATE attachment SET bytes=? WHERE id=?","tampered evidence".getBytes(StandardCharsets.UTF_8),file);}
+   else db.update("UPDATE attachment SET bytes=? WHERE id=?",originalFiles.get(file),file);return;
   }
   int expected=((Number)step.getOrDefault("error",200)).intValue();Result result;long records=db.queryForObject("SELECT COUNT(*) FROM business_record",Long.class),audit=db.queryForObject("SELECT COUNT(*) FROM audit_event",Long.class);
   if(op.equals("create")){
