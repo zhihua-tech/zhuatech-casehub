@@ -8,15 +8,30 @@ import java.util.*;
 import java.time.*;
 import java.sql.Timestamp;
 import static cn.zhuatech.casehub.Model.*;
+/**
+ * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+ */
 @Component @org.springframework.core.annotation.Order(1)
 public class DemoSeed implements ApplicationRunner {
  final Engine e;final Auth auth;final boolean demo;final Map<String,Row> aliases=new HashMap<>();
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  public DemoSeed(Engine e,Auth auth,@Value("${app.demo:false}")boolean demo){this.e=e;this.auth=auth;this.demo=demo;}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @SuppressWarnings("unchecked") Object resolve(Object value){
   if(value instanceof String s){if(s.startsWith("$today"))return LocalDate.now().plusDays(s.length()==6?0:Integer.parseInt(s.substring(6))).toString();if(s.startsWith("$now")){String delta=s.substring(4);if(delta.isEmpty())return Instant.now().toString();long n=Long.parseLong(delta.substring(0,delta.length()-1));return Instant.now().plus(Duration.ofMinutes(delta.endsWith("h")?n*60:n)).toString();}if(s.startsWith("$"))return aliases.get(s.substring(1,s.indexOf('.'))).id();return s;}
   if(value instanceof Map<?,?> m){var out=new LinkedHashMap<String,Object>();m.forEach((k,v)->out.put(k.toString(),resolve(v)));return out;}if(value instanceof List<?> l)return l.stream().map(this::resolve).toList();return value;
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  User user(String name){return e.jdbc().query("SELECT id,tenant,username,role FROM app_user WHERE username=?",(r,n)->new User(r.getString(1),r.getString(2),r.getString(3),r.getString(4)),name).getFirst();}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @SuppressWarnings("unchecked") public void run(ApplicationArguments args)throws Exception{
   if(!demo||e.jdbc().queryForObject("SELECT COUNT(*) FROM business_record",Integer.class)>0)return;
   

@@ -6,10 +6,25 @@ import java.time.*;
 import java.security.MessageDigest;
 import static cn.zhuatech.casehub.Model.*;
 import static cn.zhuatech.casehub.Engine.*;
+/**
+ * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+ */
 @Component public class Domain {
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  static String text(Row r,String k){return txt(r.data(),k);}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  static List<Row> linked(Engine e,User u,String module,String field,String id){return e.all(u,module).stream().filter(x->text(x,field).equals(id)).toList();}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  static String holder(Engine e,User u,Row evidence,Map<String,Object>d){String current=txt(d,"currentHolder");if(!current.isEmpty())return current;return e.jdbc().queryForObject("SELECT username FROM app_user WHERE tenant=? AND id=?",String.class,u.tenant(),evidence.creator());}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  public Map<String,Object> integrity(Engine e,User u,Row evidence){
   require(evidence.module().equals("evidence"),"仅证据记录支持完整性校验");
   var files=e.jdbc().queryForList("SELECT filename,digest,size_bytes,bytes FROM attachment WHERE tenant=? AND record_id=? ORDER BY id",u.tenant(),evidence.id());
@@ -21,15 +36,27 @@ import static cn.zhuatech.casehub.Engine.*;
   String actual=Auth.hash(e.encode(manifest)),expected=text(evidence,"manifestDigest");
   return Map.of("verified",!files.isEmpty()&&damaged==0&&!expected.isEmpty()&&expected.equals(actual),"expected",expected,"actual",actual,"fileCount",files.size(),"damagedFiles",damaged);
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  static byte[] digest(byte[] bytes){try{return MessageDigest.getInstance("SHA-256").digest(bytes);}catch(Exception ex){throw new IllegalStateException("SHA-256 不可用",ex);}}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  public void create(Engine e,User u,String module,Map<String,Object>d){
   if(module.equals("tasks")||module.equals("evidence")){Row incident=e.ref(u,d,"case","cases");require(incident.state().equals("INVESTIGATING"),"仅调查中的案件可新增任务或证据");}
   if(module.equals("tasks"))require(!date(d,"dueDate").isBefore(LocalDate.now()),"任务截止日不能早于今天");
   if(module.equals("evidence")){require(!date(d,"collectedAt").isAfter(LocalDate.now()),"证据取得日期不能是未来");d.put("currentHolder",u.username());d.put("transferCount",0);}
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  public void edit(Engine e,User u,Row r,Map<String,Object>d){
   if(r.module().equals("tasks")){require(e.ref(u,d,"case","cases").state().equals("INVESTIGATING")&&txt(d,"case").equals(text(r,"case")),"任务不能迁移案件或在结案复核后修改");}
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  public String action(Engine e,User u,Row r,String action,Map<String,Object>i,Map<String,Object>d){
   switch(r.module()+"."+action){
    case "cases.submit" -> {
@@ -69,5 +96,8 @@ import static cn.zhuatech.casehub.Engine.*;
   }
   return null;
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  public Map<String,Object> metrics(Engine e,User u){return Map.of("调查中案件",e.all(u,"cases").stream().filter(r->r.state().equals("INVESTIGATING")).count(),"待结案复核",e.all(u,"cases").stream().filter(r->r.state().equals("REVIEW")).count(),"已归档案件",e.all(u,"closures").size());}
 }

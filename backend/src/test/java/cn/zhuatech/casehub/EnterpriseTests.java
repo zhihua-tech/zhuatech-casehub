@@ -15,12 +15,21 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static cn.zhuatech.casehub.Model.*;
+/**
+ * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+ */
 @SpringBootTest(properties={"app.demo=false","app.admin-password=Test-Admin-2026!","app.reviewer-password=Test-Review-2026!","app.operator-password=Test-Operator-2026!","app.viewer-password=Test-Viewer-2026!"},webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS) @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class EnterpriseTests {
  @LocalServerPort int port;@Autowired ObjectMapper json;@Autowired Engine e;@Autowired Auth auth;@Autowired JdbcTemplate db;
  final HttpClient client=HttpClient.newHttpClient();final Map<String,String> tokens=new HashMap<>();final Map<String,String> ids=new LinkedHashMap<>();final Map<String,byte[]> originalFiles=new HashMap<>();List<Map<String,Object>> steps;
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  record Result(int status,Map<String,Object> body){}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @SuppressWarnings("unchecked") Result call(String method,String path,Object body,String role,String key)throws Exception{
   var b=HttpRequest.newBuilder(URI.create("http://localhost:"+port+"/api"+path)).timeout(Duration.ofSeconds(15)).header("Content-Type","application/json");
   if(role!=null)b.header("Authorization","Bearer "+tokens.getOrDefault(role,role));
@@ -29,7 +38,13 @@ class EnterpriseTests {
   var r=client.send(b.build(),HttpResponse.BodyHandlers.ofString());String text=r.body();Object parsed=text.isBlank()?Map.of():json.readValue(text,Object.class);Map<String,Object> result=parsed instanceof Map?(Map<String,Object>)parsed:Map.of("items",parsed);
   return new Result(r.statusCode(),result);
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  Result call(String method,String path,Object body,String role)throws Exception{return call(method,path,body,role,UUID.randomUUID().toString());}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @SuppressWarnings("unchecked") @BeforeAll void initialize()throws Exception{
   assertEquals(200,call("GET","/health",null,null).status());
   for(String name:List.of("admin","reviewer","operator","viewer")){
@@ -42,20 +57,41 @@ class EnterpriseTests {
   }
   try(var in=getClass().getResourceAsStream("/acceptance.json")){steps=json.readValue(in,List.class);}
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @SuppressWarnings("unchecked") Object resolve(Object value){
   if(value instanceof String s){if(s.startsWith("$today"))return LocalDate.now().plusDays(s.length()==6?0:Integer.parseInt(s.substring(6))).toString();if(s.startsWith("$now")){String delta=s.substring(4);if(delta.isEmpty())return Instant.now().toString();long n=Long.parseLong(delta.substring(0,delta.length()-1));return Instant.now().plus(Duration.ofMinutes(delta.endsWith("h")?n*60:n)).toString();}if(s.startsWith("$"))return ids.get(s.substring(1,s.indexOf('.')));return s;}
   if(value instanceof Map<?,?> m){var out=new LinkedHashMap<String,Object>();m.forEach((k,v)->out.put(k.toString(),resolve(v)));return out;}if(value instanceof List<?> l)return l.stream().map(this::resolve).toList();return value;
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  Object at(Map<String,Object> m,String path){Object v=m;for(String key:path.split("\\.")){if(!(v instanceof Map<?,?> map))return null;v=map.get(key);}return v;}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  Map<String,Object> fresh(Map<String,Object> sample,String suffix){var data=new LinkedHashMap<>(sample);for(String field:List.of("name","planCode","employeeNo","serial","sku"))if(data.containsKey(field))data.put(field,data.get(field)+"-"+suffix);return data;}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  void compare(Object expected,Object actual,String label){
   if(expected instanceof Number){assertNotNull(actual,label);assertEquals(0,new java.math.BigDecimal(expected.toString()).compareTo(new java.math.BigDecimal(actual.toString())),label);}
   else assertEquals(expected,actual,label);
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @SuppressWarnings("unchecked") boolean matches(Map<String,Object> row,Map<String,Object> where){return where.entrySet().stream().allMatch(x->Objects.toString(at(row,x.getKey()),"").equals(x.getValue().toString()));}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @SuppressWarnings("unchecked") @TestFactory @Order(1) Stream<DynamicTest> businessScenarios(){
   return IntStream.range(0,steps.size()).mapToObj(index->DynamicTest.dynamicTest(String.format("%02d %s %s %s",index+1,steps.get(index).get("op"),steps.get(index).getOrDefault("target",steps.get(index).getOrDefault("module","")),steps.get(index).getOrDefault("action","")),()->run(steps.get(index))));
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @SuppressWarnings("unchecked") void run(Map<String,Object> step)throws Exception{
   String op=step.get("op").toString(),role=step.getOrDefault("role","operator").toString();Map<String,Object> data=(Map<String,Object>)resolve(step.getOrDefault("data",Map.of()));
   if(op.equals("check")){
@@ -100,12 +136,18 @@ class EnterpriseTests {
   assertEquals(expected,result.status(),step+" -> "+result.body());
   if(expected>=400){assertEquals(records,db.queryForObject("SELECT COUNT(*) FROM business_record",Long.class),"拒绝操作不能产生业务流水");assertEquals(audit,db.queryForObject("SELECT COUNT(*) FROM audit_event",Long.class),"拒绝操作不能产生成功审计");}
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(2) void authenticationAndRoles()throws Exception{
   assertEquals(401,call("GET","/catalog",null,null).status());assertEquals(401,call("GET","/catalog",null,"invalid-session").status());
   assertEquals(403,call("GET","/admin/users",null,"operator").status());
   var sample=steps.stream().filter(s->s.get("op").equals("create")).findFirst().orElseThrow();
   assertEquals(403,call("POST","/records/"+sample.get("module"),Map.of("code","NO-VIEWER","data",resolve(sample.get("data"))),"viewer").status());
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(3) void idempotencyAndUniqueCode()throws Exception{
   var sample=steps.stream().filter(s->s.get("op").equals("create")).findFirst().orElseThrow();String path="/records/"+sample.get("module");Map<String,Object> data=fresh((Map<String,Object>)resolve(sample.get("data")),"IDEMPOTENT");
   if(data.containsKey("serial"))data.put("serial","IDEMPOTENT-SERIAL");if(data.containsKey("sku"))data.put("sku","IDEMPOTENT-SKU");
@@ -115,6 +157,9 @@ class EnterpriseTests {
   assertEquals(409,call("POST",path,body,"operator").status());
   assertEquals(400,call("POST",path,body,"operator",null).status());
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(4) void tenantIsolationAndAudit()throws Exception{
   db.update("INSERT INTO tenant_guard VALUES('isolation-test')");
   User other=new User("foreign-user","isolation-test","isolation","ADMIN");
@@ -123,6 +168,9 @@ class EnterpriseTests {
   assertFalse(e.history(auth.current("Bearer "+tokens.get("admin")),id).isEmpty());
   assertEquals(404,call("GET","/records/not-found",null,"operator").status());
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(5) void staleVersionAndInputValidation()throws Exception{
   String id=ids.values().iterator().next();var row=call("GET","/records/"+id,null,"operator").body();
   Map<String,Object> values=new LinkedHashMap<>((Map<String,Object>)row.get("data"));var module=e.spec().module(row.get("module").toString());
@@ -131,6 +179,9 @@ class EnterpriseTests {
   assertEquals(400,call("GET","/records?module="+module.key()+"&size=1000",null,"operator").status());
   assertEquals(400,call("POST","/records/"+module.key(),Map.of("code","BAD-INPUT","data",Map.of("unknown","bad")),"operator").status());
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(6) void concurrentIdempotency()throws Exception{
   var sample=steps.stream().filter(s->s.get("op").equals("create")).findFirst().orElseThrow();Map<String,Object> data=fresh((Map<String,Object>)resolve(sample.get("data")),"CONCURRENT");
   if(data.containsKey("serial"))data.put("serial","CONCURRENT-SERIAL");if(data.containsKey("sku"))data.put("sku","CONCURRENT-SKU");
@@ -141,6 +192,9 @@ class EnterpriseTests {
   }
   assertEquals(1,db.queryForObject("SELECT COUNT(*) FROM business_record WHERE code='CONCURRENT-001'",Integer.class));
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(7) void selfReviewAndLogout()throws Exception{
   var module=e.spec().modules().stream().filter(m->m.actions().stream().anyMatch(Action::separate)).findFirst().orElseThrow();
   var approval=module.actions().stream().filter(Action::separate).findFirst().orElseThrow();
@@ -151,6 +205,9 @@ class EnterpriseTests {
   String logoutToken=call("POST","/auth/login",Map.of("username","viewer","password","Test-Viewer-2026!"),null).body().get("token").toString();
   assertEquals(200,call("POST","/auth/logout",Map.of(),logoutToken).status());assertEquals(401,call("GET","/me",null,logoutToken).status());
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(8) void administrativeRevocationAndPasswordReset()throws Exception{
   assertEquals(200,call("POST","/admin/users",Map.of("username","temporary","password","Test-Temporary-2026!","role","VIEWER"),"admin").status());
   String token=call("POST","/auth/login",Map.of("username","temporary","password","Test-Temporary-2026!"),null).body().get("token").toString();
@@ -158,12 +215,18 @@ class EnterpriseTests {
   assertEquals(200,call("PATCH","/admin/users/"+id,Map.of("active","false"),"admin").status());assertEquals(401,call("GET","/me",null,token).status());
   assertEquals(401,call("POST","/auth/login",Map.of("username","temporary","password","Test-Temporary-2026!"),null).status());
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(9) void exportAndAttachmentReadAuthorization()throws Exception{
   String module=e.spec().modules().getFirst().key();
   var request=HttpRequest.newBuilder(URI.create("http://localhost:"+port+"/api/export/"+module)).header("Authorization","Bearer "+tokens.get("viewer")).GET().build();
   var response=client.send(request,HttpResponse.BodyHandlers.ofString());assertEquals(200,response.statusCode());assertTrue(response.body().contains("编号"));assertTrue(response.body().contains("状态"));
   assertEquals(401,call("GET","/attachments/download/no-file",null,null).status());
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(10) void differentRequestsCannotOverwriteSameVersion()throws Exception{
   var sample=steps.stream().filter(x->x.get("op").equals("create")&&e.spec().module(x.get("module").toString()).editable()).findFirst().orElseThrow();
   String module=sample.get("module").toString();Map<String,Object> data=fresh((Map<String,Object>)resolve(sample.get("data")),"VERSION-RACE");
@@ -177,11 +240,17 @@ class EnterpriseTests {
    assertEquals(1,success);assertEquals(3,conflict);assertEquals(2,call("GET","/records/"+id,null,"operator").body().get("version"));
   }
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(11) void failedLoginLocksAndDoesNotIssueToken()throws Exception{
   assertEquals(200,call("POST","/admin/users",Map.of("username","lockoutuser","password","Test-Lockout-2026!","role","VIEWER"),"admin").status());
   for(int i=0;i<5;i++){Result r=call("POST","/auth/login",Map.of("username","lockoutuser","password","incorrect-password"),null);assertEquals(401,r.status());assertFalse(r.body().containsKey("token"));}
   assertEquals(429,call("POST","/auth/login",Map.of("username","lockoutuser","password","Test-Lockout-2026!"),null).status());
  }
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(12) void foreignTenantCannotReadHttpOrAttachments()throws Exception{
   String id=UUID.randomUUID().toString();db.update("INSERT INTO app_user(id,tenant,username,password_hash,role,active) VALUES(?,?,?,?,?,true)",id,"isolation-test","foreign-http-user",auth.encoder.encode("Test-Foreign-2026!"),"ADMIN");
   String token=call("POST","/auth/login",Map.of("username","foreign-http-user","password","Test-Foreign-2026!"),null).body().get("token").toString();
@@ -189,6 +258,9 @@ class EnterpriseTests {
   var records=call("GET","/records?module="+e.spec().modules().getFirst().key(),null,token);assertEquals(200,records.status());assertEquals(0,((Number)records.body().get("total")).intValue());
  }
 
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @Test @Order(13) void databaseSequenceOrdersEventsWithSameTimestamp(){
   User u=auth.current("Bearer "+tokens.get("admin"));String module=e.spec().modules().getFirst().key();Row source=e.all(u,module).getFirst();
   Row first=e.system(u,module,"ORDER-FIRST",source.state(),source.data()),second=e.system(u,module,"ORDER-SECOND",source.state(),source.data());
