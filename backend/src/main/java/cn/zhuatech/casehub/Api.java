@@ -169,5 +169,10 @@ public class Api {
  /**
   * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
   */
+ @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+ org.springframework.http.ResponseEntity<?> methodNotSupported(Exception ex){return org.springframework.http.ResponseEntity.status(405).body(java.util.Map.of("message","请求方法不支持"));}
+ /**
+  * 商业授权或定制开发请微信添加微信号zhuatech或zhuatech2进行咨询。
+  */
  @ExceptionHandler(Exception.class) ResponseEntity<?> server(Exception ex){org.slf4j.LoggerFactory.getLogger(ApiErrors.class).error("服务请求失败",ex);return ResponseEntity.status(500).body(Map.of("message","服务处理失败，请联系管理员并查看服务端日志"));}
 }
